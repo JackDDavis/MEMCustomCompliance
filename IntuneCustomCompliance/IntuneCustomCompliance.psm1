@@ -19,7 +19,7 @@ function New-IntuneCustomComplianceSetting {
     Represent the values that the operator works on.
 
 .PARAMETER MoreInfoURL
-    A URL that’s shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
+    A URL that is shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
 
 .PARAMETER RemediationStrings
     Information that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
@@ -54,29 +54,31 @@ function New-IntuneCustomComplianceSetting {
         [string]$Description,
         [string]$convert
     )
+    process {
+        $RemediationStrings = @(
+            [ordered]@{
+                Language    = $Language;
+                Title       = $Title;
+                Description = $Description
+            }
+        )
 
-    $RemediationStrings = @(
-        [ordered]@{
-            Language    = $Language; 
-            Title       = $Title; 
-            Description = $Description
+        $r = [ordered]@{
+            SettingName        = $SettingName;
+            Operator           = $Operator;
+            DataType           = $DataType;
+            Operand            = $Operand ;
+            MoreInfoURL        = $MoreInfoURL ;
+            RemediationStrings = $RemediationStrings
         }
-    )
 
-    $r = [ordered]@{ 
-        SettingName        = $SettingName; 
-        Operator           = $Operator; 
-        DataType           = $DataType; 
-        Operand            = $Operand ; 
-        MoreInfoURL        = $MoreInfoURL ; 
-        RemediationStrings = $RemediationStrings
+        if ($convert) {
+            return $r | ConvertTo-Json -depth 100
+        }
+        else {
+            return $r
+        }
     }
-    if ($convert) {
-        return $r | ConvertTo-Json -depth 100 
-    }
-    else {
-        return $r
-    } 
 }
 
 function New-IntuneCustomComplianceRuleSet {
@@ -100,7 +102,7 @@ function New-IntuneCustomComplianceRuleSet {
     Represent the values that the operator works on.
 
 .PARAMETER MoreInfoURL
-    A URL that’s shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
+    A URL that is shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
 
 .PARAMETER RemediationStrings
     Information that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
@@ -112,23 +114,21 @@ function New-IntuneCustomComplianceRuleSet {
     Author:  Jack D. Davis Jr.
     Website: http://www.Microsoft.com
 #>
-    
+
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [array]$QueryResult,
         [Parameter(ValueFromPipeline)]
-        [string]$SettingNameKey,
+        [string]$sKeyName,
         [Parameter(Mandatory = $true, ValueFromPipeline)]
-        [string]$OperandProperty,
+        [string]$sValueName,
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
         [string]$Operator,
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
-        [string]$Operand,
         [Parameter(Mandatory = $true)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
@@ -138,20 +138,24 @@ function New-IntuneCustomComplianceRuleSet {
         [Parameter(Mandatory = $false)]
         [string]$Description
     )
-    #$i = 1
-    #$e = $QueryResult.Count
-    $ruleSet = [System.Collections.ArrayList]@()
-    foreach ($rule in $QueryResult) {
-        $iccs = New-IntuneCustomComplianceSetting -SettingName $rule.$SettingNameKey -Operator $Operator -DataType $DataType -Operand $rule.$OperandProperty -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
-        
-        <#         if ($i -lt $e) {
-            $iccs = $iccs + "," 
-            $i = $i + 1
-        } #>
-
-        $ruleSet.Add($iccs) | Out-Null
+    process {
+        $ruleSet = [System.Collections.ArrayList]@()
+        foreach ($rule in $QueryResult) {
+            $params = @{
+                SettingName = $rule.$sKeyName
+                Operator    = $Operator
+                DataType    = $DataType
+                Operand     = $rule.$sValueName
+                MoreInfoURL = $MoreInfoURL
+                Language    = $Language
+                Title       = $Title
+                Description = $Description
+            }
+            $iccs = New-IntuneCustomComplianceSetting @params
+            $ruleSet.Add($iccs) | Out-Null
+        }
+        return $ruleSet
     }
-    return $ruleSet
 }
 function Export-IntuneCustomComplianceRule {
     <#
@@ -168,7 +172,7 @@ function Export-IntuneCustomComplianceRule {
     Filepath of exported JSON file
 
 .PARAMETER isJSON
-    Determines whether rule passed 
+    Determines whether rule passed
 
 
 .EXAMPLE
@@ -178,7 +182,7 @@ function Export-IntuneCustomComplianceRule {
     Author:  Jack D. Davis Jr.
     Website: http://www.Microsoft.com
 #>
-    
+
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
@@ -188,12 +192,14 @@ function Export-IntuneCustomComplianceRule {
         [Parameter(Mandatory = $false)]
         $isJSON
     )
-    if ($isJSON) {
-        $Setting = $Setting | ConvertFrom-Json
+    process {
+        if ($isJSON) {
+            $Setting = $Setting | ConvertFrom-Json
+        }
+        $rSettings = @{
+            Rules = @($Setting)
+        }
+        return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
+
     }
-    $rSettings = @{
-        Rules = @($Setting)
-    }
-    return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
 }
-Export-ModuleMember -Function *
