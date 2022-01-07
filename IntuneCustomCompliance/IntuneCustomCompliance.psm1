@@ -34,8 +34,7 @@ function New-IntuneCustomComplianceSetting {
     Author:  Jack D. Davis Jr.
     Website: http://www.Microsoft.com
 #>
-
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [string]$SettingName,
@@ -55,28 +54,30 @@ function New-IntuneCustomComplianceSetting {
         [string]$convert
     )
     process {
-        $RemediationStrings = @(
-            [ordered]@{
-                Language    = $Language;
-                Title       = $Title;
-                Description = $Description
+        if ($PSCmdlet.ShouldProcess($SettingName, $Operand)) {
+            $RemediationStrings = @(
+                [ordered]@{
+                    Language    = $Language;
+                    Title       = $Title;
+                    Description = $Description
+                }
+            )
+
+            $r = [ordered]@{
+                SettingName        = $SettingName;
+                Operator           = $Operator;
+                DataType           = $DataType;
+                Operand            = $Operand ;
+                MoreInfoURL        = $MoreInfoURL ;
+                RemediationStrings = $RemediationStrings
             }
-        )
 
-        $r = [ordered]@{
-            SettingName        = $SettingName;
-            Operator           = $Operator;
-            DataType           = $DataType;
-            Operand            = $Operand ;
-            MoreInfoURL        = $MoreInfoURL ;
-            RemediationStrings = $RemediationStrings
-        }
-
-        if ($convert) {
-            return $r | ConvertTo-Json -depth 100
-        }
-        else {
-            return $r
+            if ($convert) {
+                return $r | ConvertTo-Json -depth 100
+            }
+            else {
+                return $r
+            }
         }
     }
 }
@@ -114,8 +115,7 @@ function New-IntuneCustomComplianceRuleSet {
     Author:  Jack D. Davis Jr.
     Website: http://www.Microsoft.com
 #>
-
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [array]$QueryResult,
@@ -139,22 +139,24 @@ function New-IntuneCustomComplianceRuleSet {
         [string]$Description
     )
     process {
-        $ruleSet = [System.Collections.ArrayList]@()
-        foreach ($rule in $QueryResult) {
-            $params = @{
-                SettingName = $rule.$sKeyName
-                Operator    = $Operator
-                DataType    = $DataType
-                Operand     = $rule.$sValueName
-                MoreInfoURL = $MoreInfoURL
-                Language    = $Language
-                Title       = $Title
-                Description = $Description
+        if ($PSCmdlet.ShouldProcess($QueryResult, $sKeyName, $sValueName)) {
+            $ruleSet = [System.Collections.ArrayList]@()
+            foreach ($rule in $QueryResult) {
+                $params = @{
+                    SettingName = $rule.$sKeyName
+                    Operator    = $Operator
+                    DataType    = $DataType
+                    Operand     = $rule.$sValueName
+                    MoreInfoURL = $MoreInfoURL
+                    Language    = $Language
+                    Title       = $Title
+                    Description = $Description
+                }
+                $iccs = New-IntuneCustomComplianceSetting @params
+                $ruleSet.Add($iccs) | Out-Null
             }
-            $iccs = New-IntuneCustomComplianceSetting @params
-            $ruleSet.Add($iccs) | Out-Null
+            return $ruleSet
         }
-        return $ruleSet
     }
 }
 function Export-IntuneCustomComplianceRule {
@@ -182,8 +184,7 @@ function Export-IntuneCustomComplianceRule {
     Author:  Jack D. Davis Jr.
     Website: http://www.Microsoft.com
 #>
-
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         $Setting,
@@ -193,13 +194,14 @@ function Export-IntuneCustomComplianceRule {
         $isJSON
     )
     process {
-        if ($isJSON) {
-            $Setting = $Setting | ConvertFrom-Json
+        if ($PSCmdlet.ShouldProcess($Setting)) {
+            if ($isJSON) {
+                $Setting = $Setting | ConvertFrom-Json
+            }
+            $rSettings = @{
+                Rules = @($Setting)
+            }
+            return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
         }
-        $rSettings = @{
-            Rules = @($Setting)
-        }
-        return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
-
     }
 }
