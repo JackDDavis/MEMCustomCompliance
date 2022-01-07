@@ -21,18 +21,27 @@ function New-IntuneCustomComplianceSetting {
 .PARAMETER MoreInfoURL
     A URL that is shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
 
-.PARAMETER RemediationStrings
-    Information that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
+.PARAMETER Language
+    Remediation detail language for information displayed in the Company Portal when a device is noncompliant to a setting.
+
+.PARAMETER Title
+    Remediation detail title for information displayed in the Company Portal when a device is noncompliant to a setting.
+
+.PARAMETER Description
+    Remediation description detail that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
+
+.PARAMETER Convert
+    Converts output to JSON. Not recommended for use with Export Function
 
 .EXAMPLE
-     New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'Value to check' -MoreInfoURL "https://justanothertech.blog" -Title $title
+     New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL "https://dev.jackdavis.net" -Title $title
 
 .EXAMPLE
      $MyQueryOutput | New-IntuneCustomComplianceSetting
 
 .NOTES
     Author:  Jack D. Davis Jr.
-    Website: http://www.Microsoft.com
+    Website: http://dev.jackdavis.net
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
