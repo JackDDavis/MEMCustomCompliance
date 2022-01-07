@@ -1,10 +1,10 @@
 function New-IntuneCustomComplianceSetting {
     <#
 .SYNOPSIS
-    Creates required JSON for Intune Custom Compliance file
+    Creates an Intune Custom Compliance Setting
 
 .DESCRIPTION
-    Building Intune custom compliance JSON can be cumbersome. Especially when you have multiple values for which you're checking against. This function aims to reduce the work required.
+    This cmdlet creates the Intune Custom Compliance Setting. Setting can be converted to JSON with '-convert'. This should not be converted if using module Export cmdlet
 
 .PARAMETER SettingName
     The name of the custom setting to use for base compliance
@@ -34,18 +34,18 @@ function New-IntuneCustomComplianceSetting {
     Converts output to JSON. Not recommended for use with Export Function
 
 .EXAMPLE
-     New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL "https://dev.jackdavis.net" -Title $title
+     New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $url -Title $title
 
 .EXAMPLE
-     $MyQueryOutput | New-IntuneCustomComplianceSetting
+     $MyQueryOutput | New-IntuneCustomComplianceSetting -Convert
 
 .NOTES
     Author:  Jack D. Davis Jr.
-    Website: http://dev.jackdavis.net
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
         [string]$SettingName,
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
@@ -55,7 +55,7 @@ function New-IntuneCustomComplianceSetting {
         [string]$DataType,
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [string]$Operand,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [string]$Language = 'en_US',
         [string]$Title,
@@ -77,7 +77,7 @@ function New-IntuneCustomComplianceSetting {
                 Operator           = $Operator;
                 DataType           = $DataType;
                 Operand            = $Operand ;
-                MoreInfoURL        = $MoreInfoURL ;
+                MoreInfoURL        = $MoreInfoURL;
                 RemediationStrings = $RemediationStrings
             }
 
@@ -94,13 +94,19 @@ function New-IntuneCustomComplianceSetting {
 function New-IntuneCustomComplianceRuleSet {
     <#
 .SYNOPSIS
-    Builds an extensive Intune Custom Compliance Rule
+    Creates required JSON for Intune Custom Compliance file
 
 .DESCRIPTION
-    Builds the Intune custom compliance Rule JSON file. See Docs for more information - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json
+    Builds Intune custom compliance rule which may include several settings.
 
-.PARAMETER SettingName
-    The name of the custom setting to use for base compliance
+.PARAMETER QueryResult
+    The
+
+.PARAMETER sKeyName
+    Setting Key column identified as property in query
+
+.PARAMETER sValueName
+    Setting Value column identified as property in query
 
 .PARAMETER Operator
     Represents a specific action that is used to build a compliance rule. For options, see the following list of supported operators.
@@ -114,23 +120,34 @@ function New-IntuneCustomComplianceRuleSet {
 .PARAMETER MoreInfoURL
     A URL that is shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
 
-.PARAMETER RemediationStrings
-    Information that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
+.PARAMETER Language
+    Remediation detail language for information displayed in the Company Portal when a device is noncompliant to a setting.
+
+.PARAMETER Title
+    Remediation detail title for information displayed in the Company Portal when a device is noncompliant to a setting.
+
+.PARAMETER Description
+    Remediation description detail that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
 
 .EXAMPLE
-     Export-IntuneCustomComplianceRule -Setting $allSettings -Destination $destination
+     New-IntuneCustomComplianceRuleSet -QueryResult $Output -sKeyName 'Name' -sValueName 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
+
+.EXAMPLE
+     $MyQueryOutput | New-IntuneCustomComplianceRuleSet -sKeyName 'Name' -sValueName 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
 
 .NOTES
     Author:  Jack D. Davis Jr.
-    Website: http://www.Microsoft.com
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
         [array]$QueryResult,
         [Parameter(ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
         [string]$sKeyName,
         [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
         [string]$sValueName,
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
@@ -138,9 +155,10 @@ function New-IntuneCustomComplianceRuleSet {
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
+        [ValidateLength(5)]
         [string]$Language = 'en_US',
         [Parameter(Mandatory = $false)]
         [string]$Title,
@@ -171,7 +189,7 @@ function New-IntuneCustomComplianceRuleSet {
 function Export-IntuneCustomComplianceRule {
     <#
 .SYNOPSIS
-    Exports JSON file for Intune Custom Compliance Rules
+    Exports an Intune Custom Compliance formatted JSON Rule
 
 .DESCRIPTION
     Exports the Intune custom compliance Rule JSON file. See Docs for more information - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json
@@ -185,20 +203,20 @@ function Export-IntuneCustomComplianceRule {
 .PARAMETER isJSON
     Determines whether rule passed
 
-
 .EXAMPLE
      Export-IntuneCustomComplianceRule -Setting $allSettings -Destination $destination
 
 .NOTES
     Author:  Jack D. Davis Jr.
-    Website: http://www.Microsoft.com
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
         $Setting,
         [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$Destination,
+        [ValidateScript({ Test-Path $_ })]
+        [string]$Destination,
         [Parameter(Mandatory = $false)]
         $isJSON
     )
