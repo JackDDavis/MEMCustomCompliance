@@ -14,6 +14,14 @@ $Description = 'this is my description'
 $sKeyName = 'Name'
 $sValueName = 'Action'
 
+# Run Pester tests
+$pestPath = '<path>\MEMCustomCompliance\IntuneCustomCompliance\'
+Set-Location -Path $pestPath
+Import-Module Pester
+Invoke-Pester -script "$pestPath\CustomCompliance.Tests.ps1" -Verbose
+# -CodeCoverage .\CoverageTest.ps1 -Show All
+
+
 # Run Cmdlet Tests
 $fwRules = Get-NetFirewallRule | Where-Object { $PSItem.Direction -eq 'Inbound' } | Where-Object { $_.Name -like '*Edge*' } | Select-Object Name, Action
 Write-Host "Creating Compliance Setting" -BackgroundColor RED
@@ -23,4 +31,4 @@ New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sVa
 $Rule01 = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 Write-Host "Exporting JSON" -BackgroundColor RED
 Export-IntuneCustomComplianceRule -Setting $Rule01 -Destination $destination -Verbose
-Get-Content -Path $destination
+#Get-Content -Path $destination

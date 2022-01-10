@@ -57,10 +57,14 @@ function New-IntuneCustomComplianceSetting {
         [string]$Operand,
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
+        [Parameter(Mandatory = $false)]
         [string]$Language = 'en_US',
+        [Parameter(Mandatory = $false)]
         [string]$Title,
+        [Parameter(Mandatory = $false)]
         [string]$Description,
-        [string]$convert
+        [Parameter(Mandatory = $false)]
+        [switch]$convert
     )
     process {
         if ($PSCmdlet.ShouldProcess($SettingName, $Operand)) {
@@ -100,7 +104,7 @@ function New-IntuneCustomComplianceRuleSet {
     Builds Intune custom compliance rule which may include several settings.
 
 .PARAMETER QueryResult
-    The
+    Variable of stored query result
 
 .PARAMETER sKeyName
     Setting Key column identified as property in query
@@ -158,7 +162,7 @@ function New-IntuneCustomComplianceRuleSet {
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
-        [ValidateLength(5)]
+        #[ValidateLength(5)]
         [string]$Language = 'en_US',
         [Parameter(Mandatory = $false)]
         [string]$Title,
@@ -166,7 +170,7 @@ function New-IntuneCustomComplianceRuleSet {
         [string]$Description
     )
     process {
-        if ($PSCmdlet.ShouldProcess($QueryResult, $sKeyName, $sValueName)) {
+        if ($PSCmdlet.ShouldProcess($sKeyName, $sValueName)) {
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
                 $params = @{
@@ -215,7 +219,7 @@ function Export-IntuneCustomComplianceRule {
         [ValidateNotNullOrEmpty()]
         $Setting,
         [Parameter(Mandatory = $true)]
-        [ValidateScript({ Test-Path $_ })]
+        [System.IO.FileInfo]
         [string]$Destination,
         [Parameter(Mandatory = $false)]
         $isJSON
