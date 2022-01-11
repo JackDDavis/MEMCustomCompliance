@@ -53,7 +53,7 @@ SOFTWARE.'
     Description       = 'Intune custom compliance JSON creation.'
 
     # Minimum version of the PowerShell engine required by this module
-    # PowerShellVersion = ''
+    PowerShellVersion = '6.1'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
