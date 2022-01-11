@@ -2,7 +2,7 @@ $dir = ''
 Set-location $dir
 $destination1 = "$dir\testingxa.json"
 $destination2 = "$dir\testingxb.json"
-Import-Module .\IntuneCustomCompliance
+#Import-Module .\IntuneCustomCompliance
 
 # Test Params
 $SettingName = 'Fake Firewall Policy'
