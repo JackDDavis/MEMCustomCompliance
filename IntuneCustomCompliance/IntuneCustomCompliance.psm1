@@ -199,13 +199,10 @@ function Export-IntuneCustomComplianceRule {
     Exports the Intune custom compliance Rule JSON file. See Docs for more information - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json
 
 .PARAMETER Setting
-    The setting created for use with Intune custom compliance. This can be JSON or Hash table.
+    The setting created for use with Intune custom compliance. This can be Array or OrderedDictionary.
 
 .PARAMETER Destination
     Filepath of exported JSON file
-
-.PARAMETER isJSON
-    Determines whether rule passed
 
 .EXAMPLE
      Export-IntuneCustomComplianceRule -Setting $allSettings -Destination $destination
@@ -234,7 +231,7 @@ function Export-IntuneCustomComplianceRule {
         }
         elseif ($Setting.GetType().baseType.Name -ne 'Array') {
             if ($Setting.GetType().Name -ne 'OrderedDictionary') {
-                throw 'Invalid input. Unsupported data type passed to $Setting. Expected Array or OrderedDictionary'
+                throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
             }
         }
 
