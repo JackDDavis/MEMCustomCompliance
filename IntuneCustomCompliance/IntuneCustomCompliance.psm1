@@ -220,15 +220,22 @@ function Export-IntuneCustomComplianceRule {
         $Setting,
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]
-        [string]$Destination,
-        [Parameter(Mandatory = $false)]
-        $isJSON
+        [string]$Destination
     )
     process {
-        if ($PSCmdlet.ShouldProcess($Setting)) {
-            if ($isJSON) {
+        if ($Setting.GetType().Name -eq 'String') {
+            try {
                 $Setting = $Setting | ConvertFrom-Json
             }
+            catch {
+                throw 'Invalid input'
+            }
+        }
+        elseif ($Setting.GetType().Name -ne 'OrderedDictionary') {
+            throw 'Invalid input'
+        }
+
+        if ($PSCmdlet.ShouldProcess($Setting)) {
             $rSettings = @{
                 Rules = @($Setting)
             }
