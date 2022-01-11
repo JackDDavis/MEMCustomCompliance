@@ -225,14 +225,17 @@ function Export-IntuneCustomComplianceRule {
     process {
         if ($Setting.GetType().Name -eq 'String') {
             try {
+                Write-Warning -Message 'Converting string object'
                 $Setting = $Setting | ConvertFrom-Json
             }
             catch {
-                throw 'Invalid input'
+                throw 'Invalid input. String cannot be converted from JSON'
             }
         }
-        elseif ($Setting.GetType().Name -ne 'OrderedDictionary') {
-            throw 'Invalid input'
+        elseif ($Setting.GetType().baseType.Name -ne 'Array') {
+            if ($Setting.GetType().Name -ne 'OrderedDictionary') {
+                throw 'Invalid input. Unsupported data type passed to $Setting. Expected Array or OrderedDictionary'
+            }
         }
 
         if ($PSCmdlet.ShouldProcess($Setting)) {

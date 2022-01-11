@@ -1,6 +1,7 @@
-$dir = '< PATH >\MEMCustomCompliance'
+$dir = ''
 Set-location $dir
-$destination = "$dir\testing2.json"
+$destination1 = "$dir\testingxa.json"
+$destination2 = "$dir\testingxb.json"
 Import-Module .\IntuneCustomCompliance
 
 # Test Params
@@ -28,9 +29,12 @@ Invoke-Pester -script "$pestPath\CustomCompliance.Tests.ps1" -Verbose #>
 $fwRules = Get-NetFirewallRule | Where-Object { $PSItem.Direction -eq 'Inbound' } | Where-Object { $_.Name -like '*Edge*' } | Select-Object Name, Action
 Write-Host "Creating Compliance Setting" -BackgroundColor RED
 New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
+$xa = New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
+Write-Host "Exporting Single Setting" -BackgroundColor RED
+Export-IntuneCustomComplianceRule -Setting $xa -Destination $destination1 -Verbose
 Write-Host "Creating RuleSet" -BackgroundColor RED
 New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
-$Rule01 = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
-Write-Host "Exporting JSON" -BackgroundColor RED
-Export-IntuneCustomComplianceRule -Setting $Rule01 -Destination $destination -Verbose
+$xb = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
+Write-Host "Exporting RuleSet" -BackgroundColor RED
+Export-IntuneCustomComplianceRule -Setting $xb -Destination $destination2 -Verbose
 #Get-Content -Path $destination
