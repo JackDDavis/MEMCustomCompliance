@@ -15,10 +15,12 @@ $sKeyName = 'Name'
 $sValueName = 'Action'
 
 # Run Pester tests
-$pestPath = '<path>\MEMCustomCompliance\IntuneCustomCompliance\'
+
+<# $pestPath = '<path>\MEMCustomCompliance\IntuneCustomCompliance\'
 Set-Location -Path $pestPath
 Import-Module Pester
-Invoke-Pester -script "$pestPath\CustomCompliance.Tests.ps1" -Verbose
+Invoke-Pester -script "$pestPath\CustomCompliance.Tests.ps1" -Verbose #>
+
 # -CodeCoverage .\CoverageTest.ps1 -Show All
 
 
