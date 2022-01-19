@@ -67,30 +67,28 @@ function New-IntuneCustomComplianceSetting {
         [switch]$convert
     )
     process {
-        if ($PSCmdlet.ShouldProcess($SettingName, $Operand)) {
-            $RemediationStrings = @(
-                [ordered]@{
-                    Language    = $Language;
-                    Title       = $Title;
-                    Description = $Description
-                }
-            )
+        $RemediationStrings = @(
+            [ordered]@{
+                Language    = $Language;
+                Title       = $Title;
+                Description = $Description
+            }
+        )
 
-            $r = [ordered]@{
-                SettingName        = $SettingName;
-                Operator           = $Operator;
-                DataType           = $DataType;
-                Operand            = $Operand ;
-                MoreInfoURL        = $MoreInfoURL;
-                RemediationStrings = $RemediationStrings
-            }
+        $r = [ordered]@{
+            SettingName        = $SettingName;
+            Operator           = $Operator;
+            DataType           = $DataType;
+            Operand            = $Operand ;
+            MoreInfoURL        = $MoreInfoURL;
+            RemediationStrings = $RemediationStrings
+        }
 
-            if ($convert) {
-                return $r | ConvertTo-Json -depth 100
-            }
-            else {
-                return $r
-            }
+        if ($PSCmdlet.ShouldProcess($convert)) {
+            return $r | ConvertTo-Json -depth 100
+        }
+        else {
+            return $r
         }
     }
 }
@@ -223,7 +221,7 @@ function Export-IntuneCustomComplianceRule {
         if ($Setting.GetType().Name -eq 'String') {
             try {
                 Write-Warning -Message 'Converting string object'
-                $Setting = $Setting | ConvertFrom-Json
+                $Setting = $Setting | ConvertFrom-Json -Depth 100
             }
             catch {
                 throw 'Invalid input. String cannot be converted from JSON'
@@ -235,10 +233,11 @@ function Export-IntuneCustomComplianceRule {
             }
         }
 
-        if ($PSCmdlet.ShouldProcess($Setting)) {
-            $rSettings = @{
-                Rules = @($Setting)
-            }
+        $rSettings = @{
+            Rules = @($Setting)
+        }
+
+        if ($PSCmdlet.ShouldProcess($rSettings)) {
             return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
         }
     }
