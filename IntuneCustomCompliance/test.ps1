@@ -1,5 +1,6 @@
 $dir = ''
-Set-location $dir
+$modir = '\MEMCustomCompliance' #Module location to load
+Set-location $modir
 $destination1 = "$dir\testingxa.json"
 $destination2 = "$dir\testingxb.json"
 #Import-Module .\IntuneCustomCompliance
@@ -30,8 +31,11 @@ $fwRules = Get-NetFirewallRule | Where-Object { $PSItem.Direction -eq 'Inbound' 
 Write-Host "Creating Compliance Setting" -BackgroundColor RED
 New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 $xa = New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
+$xaConverted = New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description -convert
 Write-Host "Exporting Single Setting" -BackgroundColor RED
 Export-IntuneCustomComplianceRule -Setting $xa -Destination $destination1 -Verbose
+Write-Host "Exporting Single Setting w/ Convert" -BackgroundColor RED
+Export-IntuneCustomComplianceRule -Setting $xaConverted -Destination $destination1 -Verbose
 Write-Host "Creating RuleSet" -BackgroundColor RED
 New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 $xb = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
