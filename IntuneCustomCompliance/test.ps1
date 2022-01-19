@@ -2,7 +2,8 @@ $dir = ''
 $modir = '\MEMCustomCompliance' #Module location to load
 Set-location $modir
 $destination1 = "$dir\testingxa.json"
-$destination2 = "$dir\testingxb.json"
+$destination2 = "$dir\testingxaConvert.json"
+$destination3 = "$dir\testingxb.json"
 #Import-Module .\IntuneCustomCompliance
 
 # Test Params
@@ -35,10 +36,10 @@ $xaConverted = New-IntuneCustomComplianceSetting -SettingName $SettingName -Oper
 Write-Host "Exporting Single Setting" -BackgroundColor RED
 Export-IntuneCustomComplianceRule -Setting $xa -Destination $destination1 -Verbose
 Write-Host "Exporting Single Setting w/ Convert" -BackgroundColor RED
-Export-IntuneCustomComplianceRule -Setting $xaConverted -Destination $destination1 -Verbose
+Export-IntuneCustomComplianceRule -Setting $xaConverted -Destination $destination2 -Verbose
 Write-Host "Creating RuleSet" -BackgroundColor RED
 New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 $xb = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 Write-Host "Exporting RuleSet" -BackgroundColor RED
-Export-IntuneCustomComplianceRule -Setting $xb -Destination $destination2 -Verbose
+Export-IntuneCustomComplianceRule -Setting $xb -Destination $destination3 -Verbose
 #Get-Content -Path $destination
