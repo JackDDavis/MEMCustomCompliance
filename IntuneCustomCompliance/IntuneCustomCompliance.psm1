@@ -67,28 +67,30 @@ function New-IntuneCustomComplianceSetting {
         [switch]$convert
     )
     process {
-        $RemediationStrings = @(
-            [ordered]@{
-                Language    = $Language;
-                Title       = $Title;
-                Description = $Description
+        if ($PSCmdlet.ShouldProcess("Create Custom Compliance Setting", "$SettingName", "$r")) {
+            $RemediationStrings = @(
+                [ordered]@{
+                    Language    = $Language;
+                    Title       = $Title;
+                    Description = $Description
+                }
+            )
+
+            $r = [ordered]@{
+                SettingName        = $SettingName;
+                Operator           = $Operator;
+                DataType           = $DataType;
+                Operand            = $Operand ;
+                MoreInfoURL        = $MoreInfoURL;
+                RemediationStrings = $RemediationStrings
             }
-        )
 
-        $r = [ordered]@{
-            SettingName        = $SettingName;
-            Operator           = $Operator;
-            DataType           = $DataType;
-            Operand            = $Operand ;
-            MoreInfoURL        = $MoreInfoURL;
-            RemediationStrings = $RemediationStrings
-        }
-
-        if ($PSCmdlet.ShouldProcess($convert)) {
-            return $r | ConvertTo-Json -depth 100
-        }
-        else {
-            return $r
+            if ($convert) {
+                return $r | ConvertTo-Json -depth 100
+            }
+            else {
+                return $r
+            }
         }
     }
 }
@@ -168,7 +170,7 @@ function New-IntuneCustomComplianceRuleSet {
         [string]$Description
     )
     process {
-        if ($PSCmdlet.ShouldProcess($sKeyName, $sValueName)) {
+        if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $sKeyName, $sValueName)) {
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
                 $params = @{
@@ -237,7 +239,7 @@ function Export-IntuneCustomComplianceRule {
             Rules = @($Setting)
         }
 
-        if ($PSCmdlet.ShouldProcess($rSettings)) {
+        if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
             return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
         }
     }
