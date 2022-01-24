@@ -118,9 +118,6 @@ function New-IntuneCustomComplianceRuleSet {
 .PARAMETER DataType
     The type of data that you can use to build your compliance rule. For options, see the following list of supported DataTypes.
 
-.PARAMETER Operand
-    Represent the values that the operator works on.
-
 .PARAMETER MoreInfoURL
     A URL that is shown to device users so they can learn more about the compliance requirement when their device is noncompliant for a setting. You can also use this to link to instructions to help users bring their device into compliance for this setting.
 
@@ -217,6 +214,14 @@ function Export-IntuneCustomComplianceRule {
         $Setting,
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]
+        [ValidateScript({
+                if ($PSItem.Name.EndsWith(".json")) {
+                    $true
+                }
+                else {
+                    throw "Export must be JSON format"
+                }
+            })]
         [string]$Destination
     )
     process {
