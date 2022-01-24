@@ -1,10 +1,10 @@
 $dir = ''
-$modir = '\MEMCustomCompliance' #Module location to load
+$modir = '<MODULE PATH>\MEMCustomCompliance' #Module location to load
 Set-location $modir
 $destination1 = "$dir\testingxa.json"
 $destination2 = "$dir\testingxaConvert.json"
 $destination3 = "$dir\testingxb.json"
-#Import-Module .\IntuneCustomCompliance
+Import-Module .\IntuneCustomCompliance
 
 # Test Params
 $SettingName = 'Fake Firewall Policy'
@@ -32,11 +32,19 @@ $fwRules = Get-NetFirewallRule | Where-Object { $PSItem.Direction -eq 'Inbound' 
 Write-Host "Creating Compliance Setting" -BackgroundColor RED
 New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 $xa = New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
+Write-Host "What-If: Create Compliance Setting using Convert switch" -BackgroundColor Yellow -ForegroundColor Black
+New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description -convert -WhatIf
+Write-Host "Creating Compliance Setting using Convert switch" -BackgroundColor RED
+New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description -convert
 $xaConverted = New-IntuneCustomComplianceSetting -SettingName $SettingName -Operator $Operator -Operand $Operand -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description -convert
+Write-Host "WhatIf: Export Single Setting" -BackgroundColor Yellow -ForegroundColor Black
+Export-IntuneCustomComplianceRule -Setting $xa -Destination $destination1 -WhatIf -Verbose
 Write-Host "Exporting Single Setting" -BackgroundColor RED
 Export-IntuneCustomComplianceRule -Setting $xa -Destination $destination1 -Verbose
 Write-Host "Exporting Single Setting w/ Convert" -BackgroundColor RED
 Export-IntuneCustomComplianceRule -Setting $xaConverted -Destination $destination2 -Verbose
+Write-Host "WhatIf: Create RuleSet" -BackgroundColor Yellow -ForegroundColor Black
+New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description -WhatIf
 Write-Host "Creating RuleSet" -BackgroundColor RED
 New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
 $xb = New-IntuneCustomComplianceRuleSet -QueryResult $fwRules -sKeyName $sKeyName -sValueName $sValueName -Operator $Operator -DataType $dataType -MoreInfoURL $MoreInfoURL -Title $Title -Description $Description
