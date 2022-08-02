@@ -64,6 +64,8 @@ function New-IntuneCustomComplianceSetting {
         [Parameter(Mandatory = $false)]
         [string]$Description,
         [Parameter(Mandatory = $false)]
+        [string]$Destination,
+        [Parameter(Mandatory = $false)]
         [switch]$convert
     )
     process {
@@ -75,7 +77,6 @@ function New-IntuneCustomComplianceSetting {
                     Description = $Description
                 }
             )
-
             $r = [ordered]@{
                 SettingName        = $SettingName;
                 Operator           = $Operator;
@@ -84,7 +85,34 @@ function New-IntuneCustomComplianceSetting {
                 MoreInfoURL        = $MoreInfoURL;
                 RemediationStrings = $RemediationStrings
             }
+            if ($Destination) {
+                if ($r.GetType().Name -eq 'String') {
+                    try {
+                        Write-Warning -Message 'Converting string object'
+                        $r = $r | ConvertFrom-Json -Depth 100
+                    }
+                    catch {
+                        throw 'Invalid input. String cannot be converted from JSON'
+                    }
+                }
+                elseif ($r.GetType() -notlike 'Array') {
+                    if ($r.GetType().Name -ne 'OrderedDictionary') {
+                        #throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
+                    }
+                }
 
+                $rSettings = @{
+                    Rules = @($r)
+                }
+
+                if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
+                    $jsonOutput = $rSettings | ConvertTo-Json -depth 100 -Compress
+                    if (($jsonOutput.contains('"Operand":"False"')) -or ($jsonOutput.contains('"Operand":"True"'))) {
+                        $jsonOutput = $jsonOutput.Replace('"Operand":"False"', '"Operand":false')
+                    }
+                    return $jsonOutput | Out-File $Destination
+                }
+            }
             if ($convert) {
                 return $r | ConvertTo-Json -depth 100
             }
@@ -164,7 +192,19 @@ function New-IntuneCustomComplianceRuleSet {
         [Parameter(Mandatory = $false)]
         [string]$Title,
         [Parameter(Mandatory = $false)]
-        [string]$Description
+        [string]$Description,
+        [Parameter(Mandatory = $false)]
+        [System.IO.FileInfo]
+        [ValidateScript({
+                if ($PSItem.Name.EndsWith(".json")) {
+                    $true
+                }
+                else {
+                    throw "Export must be JSON format"
+                }
+            })]
+        [string]$Destination
+
     )
     process {
         if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $sKeyName, $sValueName)) {
@@ -183,7 +223,34 @@ function New-IntuneCustomComplianceRuleSet {
                 $iccs = New-IntuneCustomComplianceSetting @params
                 $ruleSet.Add($iccs) | Out-Null
             }
-            return $ruleSet
+            if (!$Destination) {
+                Write-Host "To export, use '-Destination' parameter" -ForegroundColor Blue
+                return $ruleSet
+            }
+            if ($Destination) {
+                if ($ruleSet.GetType().Name -eq 'String') {
+                    try {
+                        Write-Warning -Message 'Converting string object'
+                        $ruleSet = $ruleSet | ConvertFrom-Json -Depth 100
+                    }
+                    catch {
+                        throw 'Invalid input. String cannot be converted from JSON'
+                    }
+                }
+                elseif ($ruleSet.GetType() -notlike 'Array') {
+                    if ($ruleSet.GetType().Name -ne 'OrderedDictionary') {
+                        #throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
+                    }
+                }
+
+                $rSettings = @{
+                    Rules = @($ruleSet)
+                }
+
+                if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
+                    return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
+                }
+            }
         }
     }
 }
