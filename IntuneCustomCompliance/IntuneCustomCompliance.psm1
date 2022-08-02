@@ -97,7 +97,7 @@ function New-IntuneCustomComplianceSetting {
                 }
                 elseif ($r.GetType() -notlike 'Array') {
                     if ($r.GetType().Name -ne 'OrderedDictionary') {
-                        #throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
+                        throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
                     }
                 }
                 $rSettings = @{
@@ -135,10 +135,10 @@ function New-IntuneCustomComplianceRuleSet {
 .PARAMETER QueryResult
     Variable of stored query result
 
-.PARAMETER sKeyName
+.PARAMETER PropertyName
     Setting Key column identified as property in query
 
-.PARAMETER sValueName
+.PARAMETER PropertyValue
     Setting Value column identified as property in query
 
 .PARAMETER Operator
@@ -160,10 +160,10 @@ function New-IntuneCustomComplianceRuleSet {
     Remediation description detail that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
 
 .EXAMPLE
-     New-IntuneCustomComplianceRuleSet -QueryResult $Output -sKeyName 'Name' -sValueName 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
+     New-IntuneCustomComplianceRuleSet -QueryResult $Output -PropertyName 'Name' -PropertyValue 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
 
 .EXAMPLE
-     $MyQueryOutput | New-IntuneCustomComplianceRuleSet -sKeyName 'Name' -sValueName 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
+     $MyQueryOutput | New-IntuneCustomComplianceRuleSet -PropertyName 'Name' -PropertyValue 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
 
 .NOTES
     Author:  Jack D. Davis Jr.
@@ -175,10 +175,10 @@ function New-IntuneCustomComplianceRuleSet {
         [array]$QueryResult,
         [Parameter(ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
-        [string]$sKeyName,
+        [string]$PropertyName,
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
-        [string]$sValueName,
+        [string]$PropertyValue,
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
         [string]$Operator,
@@ -208,14 +208,14 @@ function New-IntuneCustomComplianceRuleSet {
 
     )
     process {
-        if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $sKeyName, $sValueName)) {
+        if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $PropertyName, $PropertyValue)) {
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
                 $params = @{
-                    SettingName = $rule.$sKeyName
+                    SettingName = $rule.$PropertyName
                     Operator    = $Operator
                     DataType    = $DataType
-                    Operand     = $rule.$sValueName
+                    Operand     = $rule.$PropertyValue
                     MoreInfoURL = $MoreInfoURL
                     Language    = $Language
                     Title       = $Title
@@ -225,7 +225,7 @@ function New-IntuneCustomComplianceRuleSet {
                 $ruleSet.Add($iccs) | Out-Null
             }
             if (!$Destination) {
-                Write-Host "To export, use '-Destination' parameter" -ForegroundColor Blue
+                Write-Output "To export, use '-Destination' parameter" -ForegroundColor Blue -NoEnumerate
                 return $ruleSet
             }
             if ($Destination) {
