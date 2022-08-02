@@ -100,15 +100,16 @@ function New-IntuneCustomComplianceSetting {
                         #throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
                     }
                 }
-
                 $rSettings = @{
                     Rules = @($r)
                 }
-
                 if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
                     $jsonOutput = $rSettings | ConvertTo-Json -depth 100 -Compress
-                    if (($jsonOutput.contains('"Operand":"False"')) -or ($jsonOutput.contains('"Operand":"True"'))) {
+                    if ($jsonOutput.contains('"Operand":"False"')) {
                         $jsonOutput = $jsonOutput.Replace('"Operand":"False"', '"Operand":false')
+                    }
+                    if ($jsonOutput.contains('"Operand":"True"')) {
+                        $jsonOutput = $jsonOutput.Replace('"Operand":"True"', '"Operand":true')
                     }
                     return $jsonOutput | Out-File $Destination
                 }
@@ -251,68 +252,6 @@ function New-IntuneCustomComplianceRuleSet {
                     return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
                 }
             }
-        }
-    }
-}
-function Export-IntuneCustomComplianceRule {
-    <#
-.SYNOPSIS
-    Exports an Intune Custom Compliance formatted JSON Rule
-
-.DESCRIPTION
-    Exports the Intune custom compliance Rule JSON file. See Docs for more information - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json
-
-.PARAMETER Setting
-    The setting created for use with Intune custom compliance. This can be Array or OrderedDictionary.
-
-.PARAMETER Destination
-    Filepath of exported JSON file
-
-.EXAMPLE
-     Export-IntuneCustomComplianceRule -Setting $allSettings -Destination $destination
-
-.NOTES
-    Author:  Jack D. Davis Jr.
-#>
-    [CmdletBinding(SupportsShouldProcess)]
-    param (
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
-        [ValidateNotNullOrEmpty()]
-        $Setting,
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]
-        [ValidateScript({
-                if ($PSItem.Name.EndsWith(".json")) {
-                    $true
-                }
-                else {
-                    throw "Export must be JSON format"
-                }
-            })]
-        [string]$Destination
-    )
-    process {
-        if ($Setting.GetType().Name -eq 'String') {
-            try {
-                Write-Warning -Message 'Converting string object'
-                $Setting = $Setting | ConvertFrom-Json -Depth 100
-            }
-            catch {
-                throw 'Invalid input. String cannot be converted from JSON'
-            }
-        }
-        elseif ($Setting.GetType().baseType.Name -ne 'Array') {
-            if ($Setting.GetType().Name -ne 'OrderedDictionary') {
-                throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
-            }
-        }
-
-        $rSettings = @{
-            Rules = @($Setting)
-        }
-
-        if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
-            return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
         }
     }
 }
