@@ -12,7 +12,7 @@
     RootModule        = 'IntuneCustomCompliance.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0'
+    ModuleVersion     = '1.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -115,19 +115,19 @@ SOFTWARE.'
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            # Tags = @()
+            Tags                     = @('Intune', 'Microsoft Endpoint Manager', 'MEM')
 
             # A URL to the license for this module.
-            LicenseUri               = 'https://github.com/JackDDavis/MEMCustomCompliance/blob/main/LICENSE'
+            LicenseUri               = 'https://mit-license.org/'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri               = 'https://github.com/JackDDavis/MEMCustomCompliance'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes             = 'https://github.com/JackDDavis/MEMCustomCompliance/blob/main/README.md'
 
             # Prerelease string of this module
             # Prerelease = ''
