@@ -30,14 +30,14 @@ function New-IntuneCustomComplianceSetting {
 .PARAMETER Description
     Remediation description detail that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
 
+.PARAMETER Destination
+    Outputs array of new rule to JSON file
+
 .PARAMETER Convert
     Converts output to JSON. Not recommended for use with Export Function
 
 .EXAMPLE
      New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $url -Title $title
-
-.EXAMPLE
-     $MyQueryOutput | New-IntuneCustomComplianceSetting -Convert
 
 .NOTES
     Author:  Jack D. Davis Jr.
@@ -53,7 +53,7 @@ function New-IntuneCustomComplianceSetting {
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [Parameter(Mandatory = $true)]
         [string]$Operand,
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
@@ -64,6 +64,15 @@ function New-IntuneCustomComplianceSetting {
         [Parameter(Mandatory = $false)]
         [string]$Description,
         [Parameter(Mandatory = $false)]
+        [System.IO.FileInfo]
+        [ValidateScript({
+                if ($PSItem.Name.EndsWith(".json")) {
+                    $true
+                }
+                else {
+                    throw "Export must be JSON format"
+                }
+            })]
         [string]$Destination,
         [Parameter(Mandatory = $false)]
         [switch]$convert
@@ -162,8 +171,8 @@ function New-IntuneCustomComplianceRuleSet {
 .EXAMPLE
      New-IntuneCustomComplianceRuleSet -QueryResult $Output -PropertyName 'Name' -PropertyValue 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
 
-.EXAMPLE
-     $MyQueryOutput | New-IntuneCustomComplianceRuleSet -PropertyName 'Name' -PropertyValue 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
+.PARAMETER Destination
+    Outputs array of Key/Value pairs to single JSON file
 
 .NOTES
     Author:  Jack D. Davis Jr.
