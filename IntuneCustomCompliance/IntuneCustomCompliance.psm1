@@ -234,7 +234,7 @@ function New-IntuneCustomComplianceRuleSet {
                 $ruleSet.Add($iccs) | Out-Null
             }
             if (!$Destination) {
-                Write-Output "To export, use '-Destination' parameter" -ForegroundColor Blue -NoEnumerate
+                Write-Warning "To export, use '-Destination' parameter" -NoEnumerate
                 return $ruleSet
             }
             if ($Destination) {
