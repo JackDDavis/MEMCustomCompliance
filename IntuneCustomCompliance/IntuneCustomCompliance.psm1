@@ -120,7 +120,7 @@ function New-IntuneCustomComplianceSetting {
                     if ($jsonOutput.contains('"Operand":"True"')) {
                         $jsonOutput = $jsonOutput.Replace('"Operand":"True"', '"Operand":true')
                     }
-                    return $jsonOutput | Out-File $Destination
+                    $jsonOutput | Out-File $Destination
                 }
             }
             if ($convert) {
