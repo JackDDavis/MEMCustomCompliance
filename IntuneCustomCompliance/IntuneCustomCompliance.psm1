@@ -54,7 +54,7 @@ function New-IntuneCustomComplianceSetting {
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
         [Parameter(Mandatory = $true)]
-        [string]$Operand,
+        $Operand,
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
@@ -197,7 +197,6 @@ function New-IntuneCustomComplianceRuleSet {
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
-        #[ValidateLength(5)]
         [string]$Language = 'en_US',
         [Parameter(Mandatory = $false)]
         [string]$Title,
@@ -247,9 +246,9 @@ function New-IntuneCustomComplianceRuleSet {
                         throw 'Invalid input. String cannot be converted from JSON'
                     }
                 }
-                elseif ($ruleSet.GetType() -notlike 'Array') {
+                elseif ($ruleSet.GetType().Name -ne 'ArrayList') {
                     if ($ruleSet.GetType().Name -ne 'OrderedDictionary') {
-                        throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
+                        throw 'Invalid input. Unsupported data type passed to Setting. Expected ArrayList or OrderedDictionary'
                     }
                 }
 
