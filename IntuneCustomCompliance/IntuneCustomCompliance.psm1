@@ -249,7 +249,7 @@ function New-IntuneCustomComplianceRuleSet {
                 }
                 elseif ($ruleSet.GetType() -notlike 'Array') {
                     if ($ruleSet.GetType().Name -ne 'OrderedDictionary') {
-                        #throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
+                        throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
                     }
                 }
 
