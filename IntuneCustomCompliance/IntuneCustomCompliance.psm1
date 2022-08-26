@@ -113,7 +113,7 @@ function New-IntuneCustomComplianceSetting {
                     Rules = @($r)
                 }
                 if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
-                    $jsonOutput = $rSettings | ConvertTo-Json -depth 100 -Compress
+                    $jsonOutput = $rSettings | ConvertTo-Json -depth 100
                     if ($jsonOutput.contains('"Operand":"False"')) {
                         $jsonOutput = $jsonOutput.Replace('"Operand":"False"', '"Operand":false')
                     }
@@ -257,7 +257,7 @@ function New-IntuneCustomComplianceRuleSet {
                 }
 
                 if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
-                    return $rSettings | ConvertTo-Json -depth 100 -Compress | Out-File $Destination
+                    return $rSettings | ConvertTo-Json -depth 100 | Out-File $Destination
                 }
             }
         }
