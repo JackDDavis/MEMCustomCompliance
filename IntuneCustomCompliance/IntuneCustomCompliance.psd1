@@ -21,36 +21,16 @@
     GUID              = '329a3174-810e-4fa1-8517-f8842117f0c8'
 
     # Author of this module
-    Author            = 'Jack D. Davis Jr'
+    Author            = 'Jack D. Davis'
 
     # Company or vendor of this module
-    CompanyName       = 'Microsoft Corporation'
+    # CompanyName       = ''
 
     # Copyright statement for this module
-    Copyright         = 'MIT License
-
-Copyright (c) 2022 Microsoft
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'
+    Copyright         = '(c) MIT License 2022'
 
     # Description of the functionality provided by this module
-    Description       = 'Intune custom compliance JSON creation.'
+    Description       = 'Build Intune custom compliance JSON detection file'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '6.1'
@@ -115,7 +95,7 @@ SOFTWARE.'
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags                     = @('Intune', 'Microsoft Endpoint Manager', 'MEM')
+            Tags                     = @('Intune', 'Microsoft_Endpoint_Manager', 'MEM')
 
             # A URL to the license for this module.
             LicenseUri               = 'https://mit-license.org/'
