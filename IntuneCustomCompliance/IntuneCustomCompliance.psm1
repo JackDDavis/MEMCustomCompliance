@@ -78,7 +78,7 @@ function New-IntuneCustomComplianceSetting {
         [switch]$convert
     )
     process {
-        if ($PSCmdlet.ShouldProcess("Create Custom Compliance Setting", "$SettingName", "$r")) {
+        if ($PSCmdlet.ShouldProcess("Create Custom Compliance Setting", "SettingName", "$SettingName")) {
             $RemediationStrings = @(
                 [ordered]@{
                     Language    = $Language;
@@ -95,30 +95,16 @@ function New-IntuneCustomComplianceSetting {
                 RemediationStrings = $RemediationStrings
             }
             if ($Destination) {
-                if ($r.GetType().Name -eq 'String') {
-                    try {
-                        Write-Warning -Message 'Converting string object'
-                        $r = $r | ConvertFrom-Json -Depth 100
-                    }
-                    catch {
-                        throw 'Invalid input. String cannot be converted from JSON'
-                    }
-                }
-                elseif ($r.GetType() -notlike 'Array') {
-                    if ($r.GetType().Name -ne 'OrderedDictionary') {
-                        throw 'Invalid input. Unsupported data type passed to Setting. Expected Array or OrderedDictionary'
-                    }
-                }
                 $rSettings = @{
                     Rules = @($r)
                 }
                 if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
                     $jsonOutput = $rSettings | ConvertTo-Json -depth 100
-                    if ($jsonOutput.contains('"Operand":"False"')) {
-                        $jsonOutput = $jsonOutput.Replace('"Operand":"False"', '"Operand":false')
+                    if ($jsonOutput.contains('"Operand":  "False"')) {
+                        $jsonOutput = $jsonOutput.Replace('"Operand":  "False"', '"Operand": false')
                     }
-                    if ($jsonOutput.contains('"Operand":"True"')) {
-                        $jsonOutput = $jsonOutput.Replace('"Operand":"True"', '"Operand":true')
+                    if ($jsonOutput.contains('"Operand":  "True"')) {
+                        $jsonOutput = $jsonOutput.Replace('"Operand":  "True"', '"Operand": true')
                     }
                     $jsonOutput | Out-File $Destination
                 }
@@ -233,11 +219,12 @@ function New-IntuneCustomComplianceRuleSet {
                 $ruleSet.Add($iccs) | Out-Null
             }
             if (!$Destination) {
-                Write-Warning "To export, use '-Destination' parameter" -NoEnumerate
+                Write-Warning "To export, use '-Destination' parameter"
                 return $ruleSet
             }
             if ($Destination) {
-                if ($ruleSet.GetType().Name -eq 'String') {
+                #think this is only possible if New-IntuneCustomComplianceSetting had -convert switch added above
+                <#if ($ruleSet.GetType().Name -eq 'String') {
                     try {
                         Write-Warning -Message 'Converting string object'
                         $ruleSet = $ruleSet | ConvertFrom-Json -Depth 100
@@ -250,7 +237,7 @@ function New-IntuneCustomComplianceRuleSet {
                     if ($ruleSet.GetType().Name -ne 'OrderedDictionary') {
                         throw 'Invalid input. Unsupported data type passed to Setting. Expected ArrayList or OrderedDictionary'
                     }
-                }
+                }#>
 
                 $rSettings = @{
                     Rules = @($ruleSet)
