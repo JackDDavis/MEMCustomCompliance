@@ -40,7 +40,7 @@ function New-IntuneCustomComplianceSetting {
      New-IntuneCustomComplianceSetting -SettingName 'ComplianceSetting' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $url -Title $title
 
 .NOTES
-    Author:  Jack D. Davis Jr.
+    Author:  Jack D. Davis
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
@@ -161,7 +161,7 @@ function New-IntuneCustomComplianceRuleSet {
     Outputs array of Key/Value pairs to single JSON file
 
 .NOTES
-    Author:  Jack D. Davis Jr.
+    Author:  Jack D. Davis
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
