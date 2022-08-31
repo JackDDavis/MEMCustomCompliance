@@ -223,22 +223,6 @@ function New-IntuneCustomComplianceRuleSet {
                 return $ruleSet
             }
             if ($Destination) {
-                #think this is only possible if New-IntuneCustomComplianceSetting had -convert switch added above
-                <#if ($ruleSet.GetType().Name -eq 'String') {
-                    try {
-                        Write-Warning -Message 'Converting string object'
-                        $ruleSet = $ruleSet | ConvertFrom-Json -Depth 100
-                    }
-                    catch {
-                        throw 'Invalid input. String cannot be converted from JSON'
-                    }
-                }
-                elseif ($ruleSet.GetType().Name -ne 'ArrayList') {
-                    if ($ruleSet.GetType().Name -ne 'OrderedDictionary') {
-                        throw 'Invalid input. Unsupported data type passed to Setting. Expected ArrayList or OrderedDictionary'
-                    }
-                }#>
-
                 $rSettings = @{
                     Rules = @($ruleSet)
                 }
