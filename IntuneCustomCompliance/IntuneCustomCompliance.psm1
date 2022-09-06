@@ -165,29 +165,60 @@ function New-IntuneCustomComplianceRuleSet {
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ParameterSetName = 'array')]
         [ValidateNotNullOrEmpty()]
         [array]$QueryResult,
+
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true, ParameterSetName = 'hash')]
+        [ValidateNotNullOrEmpty()]
+        [hashtable]$QueryResultHash, # accept hashtable as input
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [string]$PropertyName,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $true, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [string]$PropertyValue,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
         [string]$Operator,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
         [string]$Language = 'en_US',
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
         [string]$Title,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
         [string]$Description,
+
+        [Parameter(ParameterSetName = 'array')]
+        [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
         [System.IO.FileInfo]
         [ValidateScript({
@@ -199,11 +230,15 @@ function New-IntuneCustomComplianceRuleSet {
                 }
             })]
         [string]$Destination
-
     )
     process {
         if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $PropertyName, $PropertyValue)) {
             $ruleSet = [System.Collections.ArrayList]@()
+            if ($QueryResultHash) {
+                $QueryResultHash.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
+                $QueryResult = $arr
+            }
+
             foreach ($rule in $QueryResult) {
                 $params = @{
                     SettingName = $rule.$PropertyName
