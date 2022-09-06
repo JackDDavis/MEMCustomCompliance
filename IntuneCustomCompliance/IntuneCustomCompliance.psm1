@@ -231,14 +231,15 @@ function New-IntuneCustomComplianceRuleSet {
             })]
         [string]$Destination
     )
+    begin {
+        if ($QueryResultHash) {
+            $QueryResultHash.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
+            $QueryResult = $arr
+        }
+    }
     process {
         if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $PropertyName, $PropertyValue)) {
             $ruleSet = [System.Collections.ArrayList]@()
-            if ($QueryResultHash) {
-                $QueryResultHash.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
-                $QueryResult = $arr
-            }
-
             foreach ($rule in $QueryResult) {
                 $params = @{
                     SettingName = $rule.$PropertyName
