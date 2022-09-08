@@ -163,25 +163,22 @@ function New-IntuneCustomComplianceRuleSet {
 .NOTES
     Author:  Jack D. Davis
 #>
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'array')]
     param (
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ParameterSetName = 'array')]
         [ValidateNotNullOrEmpty()]
-        [array]$QueryResult,
+        $QueryResult,
 
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true, ParameterSetName = 'hash')]
         [ValidateNotNullOrEmpty()]
-        [hashtable]$QueryResultHash, # accept hashtable as input
+        [hashtable]$CustomQueryResult, # accept hashtable as input
 
-        [Parameter(ParameterSetName = 'array')]
-        [Parameter(ParameterSetName = 'hash')]
-        [Parameter(ValueFromPipeline)]
-        [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'array')]
+        #[Parameter(Mandatory = $false, ParameterSetName = 'hash')]
         [string]$PropertyName,
 
-        [Parameter(ParameterSetName = 'array')]
-        [Parameter(ParameterSetName = 'hash')]
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'array')]
+        #[Parameter(Mandatory = $false, ParameterSetName = 'hash')]
         [ValidateNotNullOrEmpty()]
         [string]$PropertyValue,
 
@@ -232,8 +229,9 @@ function New-IntuneCustomComplianceRuleSet {
         [string]$Destination
     )
     begin {
-        if ($QueryResultHash) {
-            $QueryResultHash.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
+        if ($CustomQueryResult) {
+            $arr = @()
+            $CustomQueryResult.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
             $QueryResult = $arr
         }
     }
@@ -241,15 +239,29 @@ function New-IntuneCustomComplianceRuleSet {
         if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $PropertyName, $PropertyValue)) {
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
-                $params = @{
-                    SettingName = $rule.$PropertyName
-                    Operator    = $Operator
-                    DataType    = $DataType
-                    Operand     = $rule.$PropertyValue
-                    MoreInfoURL = $MoreInfoURL
-                    Language    = $Language
-                    Title       = $Title
-                    Description = $Description
+                if ($CustomQueryResult) {
+                    $params = @{
+                        SettingName = $rule.PropertyName
+                        Operator    = $Operator
+                        DataType    = $DataType
+                        Operand     = $rule.PropertyValue
+                        MoreInfoURL = $MoreInfoURL
+                        Language    = $Language
+                        Title       = $Title
+                        Description = $Description
+                    }
+                }
+                else {
+                    $params = @{
+                        SettingName = $rule.$PropertyName
+                        Operator    = $Operator
+                        DataType    = $DataType
+                        Operand     = $rule.$PropertyValue
+                        MoreInfoURL = $MoreInfoURL
+                        Language    = $Language
+                        Title       = $Title
+                        Description = $Description
+                    }
                 }
                 $iccs = New-IntuneCustomComplianceSetting @params
                 $ruleSet.Add($iccs) | Out-Null
