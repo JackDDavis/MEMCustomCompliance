@@ -154,8 +154,19 @@ function New-IntuneCustomComplianceRuleSet {
 .PARAMETER Description
     Remediation description detail that gets displayed in the Company Portal when a device is noncompliant to a setting. This information is intended to help users understand the remediation options to bring a device to a compliant state.
 
+.INPUTS
+
+Array or Hashtable. Piping results to -QueryResult paramter set
+
+.OUTPUTS
+
+System.Collections.Hashtable. Converted into JSON format for easy export
+
 .EXAMPLE
      New-IntuneCustomComplianceRuleSet -QueryResult $Output -PropertyName 'Name' -PropertyValue 'Action' -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
+
+.EXAMPLE
+     New-IntuneCustomComplianceRuleSet -CustomQueryResult $Output -Operator 'IsEquals' -DataType 'String' -Operand 'ComplianceValue' -MoreInfoURL $uri -Title $title
 
 .PARAMETER Destination
     Outputs array of Key/Value pairs to single JSON file
