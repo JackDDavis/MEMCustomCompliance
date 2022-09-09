@@ -98,7 +98,8 @@ function New-IntuneCustomComplianceSetting {
                 $rSettings = @{
                     Rules = @($r)
                 }
-                if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
+                $exportName = $rSettings.Rules.SettingName
+                if ($PSCmdlet.ShouldProcess("Exporting $exportName as JSON to $Destination", $rSettings, $Destination)) {
                     $jsonOutput = $rSettings | ConvertTo-Json -depth 100
                     if ($jsonOutput.contains('"Operand":  "False"')) {
                         $jsonOutput = $jsonOutput.Replace('"Operand":  "False"', '"Operand": false')
@@ -240,7 +241,11 @@ System.Collections.Hashtable. Converted into JSON format for easy export
     begin {
         if ($CustomQueryResult) {
             $arr = @()
-            $CustomQueryResult.GetEnumerator() | ForEach-Object { $arr += [pscustomobject]@{PropertyName = $_.Name ; PropertyValue = $_.Value }; }
+            $CustomQueryResult.GetEnumerator() | ForEach-Object {
+                $arr += [pscustomobject]@{
+                    PropertyName = $PSItem.Name ; PropertyValue = $PSItem.Value
+                };
+            }
             $QueryResult = $arr
         }
     }
@@ -272,17 +277,15 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                         $ruleSet.Add($iccs) | Out-Null
                     }
                     else {
-                        (($null -eq $params.SettingName) -or ($null -eq $params.Operand))
-                        Write-Host 'Setting skipped because of Null value in Name or Operand'
+                        Write-Warning 'A setting rule was skipped because a null value was found in Setting Name' -Verbose
                     }
-
                 }
                 catch {
                     { throw }
                 }
 
             }
-            if (!$Destination) {
+            if (-not($Destination)) {
                 Write-Warning "To export, use '-Destination' parameter"
                 return $ruleSet
             }
@@ -290,8 +293,7 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                 $rSettings = @{
                     Rules = @($ruleSet)
                 }
-
-                if ($PSCmdlet.ShouldProcess("Exporting $rSettings as JSON to $Destination", $rSettings, $Destination)) {
+                if ($PSCmdlet.ShouldProcess("Exporting detection ruleset as JSON to $Destination", $rSettings, $Destination)) {
                     return $rSettings | ConvertTo-Json -depth 100 | Out-File $Destination
                 }
             }
