@@ -249,28 +249,22 @@ System.Collections.Hashtable. Converted into JSON format for easy export
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
                 if ($CustomQueryResult) {
-                    $params = @{
-                        SettingName = $rule.PropertyName
-                        Operator    = $Operator
-                        DataType    = $DataType
-                        Operand     = $rule.PropertyValue
-                        MoreInfoURL = $MoreInfoURL
-                        Language    = $Language
-                        Title       = $Title
-                        Description = $Description
-                    }
+                    $k = $rule.PropertyName
+                    $v = $rule.PropertyValue
                 }
                 else {
-                    $params = @{
-                        SettingName = $rule.$PropertyName
-                        Operator    = $Operator
-                        DataType    = $DataType
-                        Operand     = $rule.$PropertyValue
-                        MoreInfoURL = $MoreInfoURL
-                        Language    = $Language
-                        Title       = $Title
-                        Description = $Description
-                    }
+                    $k = $rule.$PropertyName
+                    $v = $rule.$PropertyValue
+                }
+                $params = @{
+                    SettingName = $k
+                    Operator    = $Operator
+                    DataType    = $DataType
+                    Operand     = $v
+                    MoreInfoURL = $MoreInfoURL
+                    Language    = $Language
+                    Title       = $Title
+                    Description = $Description
                 }
                 $iccs = New-IntuneCustomComplianceSetting @params
                 $ruleSet.Add($iccs) | Out-Null
