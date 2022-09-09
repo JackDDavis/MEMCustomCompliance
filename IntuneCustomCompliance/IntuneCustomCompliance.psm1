@@ -131,10 +131,10 @@ function New-IntuneCustomComplianceRuleSet {
     Variable of stored query result
 
 .PARAMETER PropertyName
-    Setting Key column identified as property in query
+    Setting Key column identified as property in query. Applicable to QueryResult parameter set only
 
 .PARAMETER PropertyValue
-    Setting Value column identified as property in query
+    Setting Value column identified as property in query. Applicable to QueryResult parameter set only
 
 .PARAMETER Operator
     Represents a specific action that is used to build a compliance rule. For options, see the following list of supported operators.
