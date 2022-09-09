@@ -52,6 +52,7 @@ function New-IntuneCustomComplianceSetting {
         [string]$Operator,
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
+        [ValidateNotNullOrEmpty()]
         [string]$DataType,
         [Parameter(Mandatory = $true)]
         $Operand,
@@ -196,11 +197,12 @@ System.Collections.Hashtable. Converted into JSON format for easy export
         [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
+        [ValidateNotNullOrEmpty()]
         [string]$Operator,
 
         [Parameter(ParameterSetName = 'array')]
         [Parameter(ParameterSetName = 'hash')]
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
 
@@ -261,10 +263,37 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     $k = $rule.$PropertyName
                     $v = $rule.$PropertyValue
                 }
+                if (($null -eq $DataType) -or ($DataType -eq "")) {
+                    $t = ($v).GetType().Name # https://github.com/PowerShell/PowerShell/issues/17456
+                    $dt = switch ($t) {
+                        'Int64'
+                        { 'Int64' }
+                        'Int32'
+                        { 'Int64' }
+                        'Int16'
+                        { 'Int64' }
+                        'Boolean'
+                        { 'Boolean' }
+                        'Double'
+                        { 'Double' }
+                        'String'
+                        { 'String' }
+                        'DateTime'
+                        { 'DateTime' }
+                        'Version'
+                        { 'Version' }
+                    }
+                    if ($dt -eq "") {
+                        Write-Verbose -Message 'DataType identified is not currently supported. Please specify -DataType'
+                    }
+                }
+                else {
+                    $dt = $DataType
+                }
                 $params = @{
                     SettingName = $k
                     Operator    = $Operator
-                    DataType    = $DataType
+                    DataType    = $dt
                     Operand     = $v
                     MoreInfoURL = $MoreInfoURL
                     Language    = $Language
@@ -277,13 +306,12 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                         $ruleSet.Add($iccs) | Out-Null
                     }
                     else {
-                        Write-Warning 'A setting rule was skipped because a null value was found in Setting Name' -Verbose
+                        Write-Verbose 'A setting rule was skipped because a null value was found in Setting Name' -Verbose
                     }
                 }
                 catch {
                     { throw }
                 }
-
             }
             if (-not($Destination)) {
                 Write-Warning "To export, use '-Destination' parameter"
