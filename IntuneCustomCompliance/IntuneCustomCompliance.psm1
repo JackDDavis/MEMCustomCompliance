@@ -171,14 +171,12 @@ function New-IntuneCustomComplianceRuleSet {
 
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true, ParameterSetName = 'hash')]
         [ValidateNotNullOrEmpty()]
-        [hashtable]$CustomQueryResult, # accept hashtable as input
+        [hashtable]$CustomQueryResult,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'array')]
-        #[Parameter(Mandatory = $false, ParameterSetName = 'hash')]
         [string]$PropertyName,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'array')]
-        #[Parameter(Mandatory = $false, ParameterSetName = 'hash')]
         [ValidateNotNullOrEmpty()]
         [string]$PropertyValue,
 
