@@ -266,8 +266,21 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     Title       = $Title
                     Description = $Description
                 }
-                $iccs = New-IntuneCustomComplianceSetting @params
-                $ruleSet.Add($iccs) | Out-Null
+                try {
+                    if (($null -ne $params.SettingName) -and ($null -ne $params.Operand)) {
+                        $iccs = New-IntuneCustomComplianceSetting @params
+                        $ruleSet.Add($iccs) | Out-Null
+                    }
+                    else {
+                        (($null -eq $params.SettingName) -or ($null -eq $params.Operand))
+                        Write-Host 'Setting skipped because of Null value in Name or Operand'
+                    }
+
+                }
+                catch {
+                    { throw }
+                }
+
             }
             if (!$Destination) {
                 Write-Warning "To export, use '-Destination' parameter"
