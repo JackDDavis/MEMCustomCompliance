@@ -263,8 +263,11 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     $k = $rule.$PropertyName
                     $v = $rule.$PropertyValue
                 }
+                $t = ($v).GetType().Name
+                if ($DataType -eq 'String') {
+                    $v = [string]$v
+                }
                 if (($null -eq $DataType) -or ($DataType -eq "")) {
-                    $t = ($v).GetType().Name # https://github.com/PowerShell/PowerShell/issues/17456
                     $dt = switch ($t) {
                         'Int64'
                         { 'Int64' }
@@ -289,6 +292,9 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                 }
                 else {
                     $dt = $DataType
+                }
+                if ($t -eq 'Version') {
+                    $v = [string]$v
                 }
                 $params = @{
                     SettingName = $k
