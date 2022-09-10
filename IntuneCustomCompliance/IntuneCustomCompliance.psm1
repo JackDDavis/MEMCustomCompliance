@@ -52,6 +52,7 @@ function New-IntuneCustomComplianceSetting {
         [string]$Operator,
         [Parameter(Mandatory = $true)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
+        [ValidateNotNullOrEmpty()]
         [string]$DataType,
         [Parameter(Mandatory = $true)]
         $Operand,
@@ -196,11 +197,12 @@ System.Collections.Hashtable. Converted into JSON format for easy export
         [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $true)]
         [ValidateSet('IsEquals', 'NotEquals', 'GreaterThan', 'GreaterEquals', 'LessThan', 'LessEquals')]
+        [ValidateNotNullOrEmpty()]
         [string]$Operator,
 
         [Parameter(ParameterSetName = 'array')]
         [Parameter(ParameterSetName = 'hash')]
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet('Boolean', 'Int64', 'Double', 'String', 'DateTime', 'Version')]
         [string]$DataType,
 
@@ -261,10 +263,43 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     $k = $rule.$PropertyName
                     $v = $rule.$PropertyValue
                 }
+                $t = ($v).GetType().Name
+                if ($DataType -eq 'String') {
+                    $v = [string]$v
+                }
+                if (($null -eq $DataType) -or ($DataType -eq "")) {
+                    $dt = switch ($t) {
+                        'Int64'
+                        { 'Int64' }
+                        'Int32'
+                        { 'Int64' }
+                        'Int16'
+                        { 'Int64' }
+                        'Boolean'
+                        { 'Boolean' }
+                        'Double'
+                        { 'Double' }
+                        'String'
+                        { 'String' }
+                        'DateTime'
+                        { 'DateTime' }
+                        'Version'
+                        { 'Version' }
+                    }
+                    if (-not($dt)) {
+                        Write-Output "DataType [$t] on setting $k identified is not currently supported. Please specify a supported DataType. See Docs for more info - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json"
+                    }
+                }
+                else {
+                    $dt = $DataType
+                }
+                if ($t -eq 'Version') {
+                    $v = [string]$v
+                }
                 $params = @{
                     SettingName = $k
                     Operator    = $Operator
-                    DataType    = $DataType
+                    DataType    = $dt
                     Operand     = $v
                     MoreInfoURL = $MoreInfoURL
                     Language    = $Language
@@ -272,21 +307,17 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     Description = $Description
                 }
                 try {
-                    if (($null -ne $params.SettingName) -and ($null -ne $params.Operand)) {
+                    if (($params.SettingName) -and ($null -ne $params.Operand)) {
                         $iccs = New-IntuneCustomComplianceSetting @params
                         $ruleSet.Add($iccs) | Out-Null
                     }
-                    else {
-                        Write-Warning 'A setting rule was skipped because a null value was found in Setting Name' -Verbose
-                    }
                 }
                 catch {
-                    { throw }
+                    { 'A detection rule was skipped and not added to ruleset because a null value was found in SettingName. Evaluate Key in Key/Value pair' }
                 }
-
             }
             if (-not($Destination)) {
-                Write-Warning "To export, use '-Destination' parameter"
+                Write-Output "To export, use '-Destination' parameter" -Verbose
                 return $ruleSet
             }
             if ($Destination) {
