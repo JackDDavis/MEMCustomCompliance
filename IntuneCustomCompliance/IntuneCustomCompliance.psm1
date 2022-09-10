@@ -286,8 +286,8 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                         'Version'
                         { 'Version' }
                     }
-                    if ($dt -eq "") {
-                        Write-Verbose -Message 'DataType identified is not currently supported. Please specify -DataType'
+                    if (-not($dt)) {
+                        Write-Output "DataType [$t] on setting $k identified is not currently supported. Please specify a supported DataType. See Docs for more info - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json"
                     }
                 }
                 else {
@@ -307,20 +307,17 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                     Description = $Description
                 }
                 try {
-                    if (($null -ne $params.SettingName) -and ($null -ne $params.Operand)) {
+                    if (($params.SettingName) -and ($null -ne $params.Operand)) {
                         $iccs = New-IntuneCustomComplianceSetting @params
                         $ruleSet.Add($iccs) | Out-Null
                     }
-                    else {
-                        Write-Verbose 'A setting rule was skipped because a null value was found in Setting Name' -Verbose
-                    }
                 }
                 catch {
-                    { throw }
+                    { 'A detection rule was skipped and not added to ruleset because a null value was found in SettingName. Evaluate Key in Key/Value pair' }
                 }
             }
             if (-not($Destination)) {
-                Write-Warning "To export, use '-Destination' parameter"
+                Write-Output "To export, use '-Destination' parameter" -Verbose
                 return $ruleSet
             }
             if ($Destination) {
