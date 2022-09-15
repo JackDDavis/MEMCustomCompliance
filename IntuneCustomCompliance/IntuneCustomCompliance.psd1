@@ -21,7 +21,7 @@
     Author            = 'Jack D. Davis'
 
     # Company or vendor of this module
-    # CompanyName       = ''
+    CompanyName       = 'Microsoft Corporation'
 
     # Copyright statement for this module
     Copyright         = '(c) MIT License 2022'

@@ -59,6 +59,7 @@ function New-IntuneCustomComplianceSetting {
         [Parameter(Mandatory = $false)]
         [string]$MoreInfoURL,
         [Parameter(Mandatory = $false)]
+        [ValidateSet('cs_CZ', 'da_DK', 'de_DE', 'el_GR', 'en_US', 'es_ES', 'fi_FI', 'fr_FR', 'hu_HU', 'it_IT', 'ja_JP', 'ko_KR', 'nb_NO', 'nl_NL', 'pl_PL', 'pt_BR', 'ro_RO', 'ru_RU', 'sv_SE', 'tr_TR', 'zh_CN', 'zh_TW')]
         [string]$Language = 'en_US',
         [Parameter(Mandatory = $false)]
         [string]$Title,
@@ -214,6 +215,7 @@ System.Collections.Hashtable. Converted into JSON format for easy export
         [Parameter(ParameterSetName = 'array')]
         [Parameter(ParameterSetName = 'hash')]
         [Parameter(Mandatory = $false)]
+        [ValidateSet('cs_CZ', 'da_DK', 'de_DE', 'el_GR', 'en_US', 'es_ES', 'fi_FI', 'fr_FR', 'hu_HU', 'it_IT', 'ja_JP', 'ko_KR', 'nb_NO', 'nl_NL', 'pl_PL', 'pt_BR', 'ro_RO', 'ru_RU', 'sv_SE', 'tr_TR', 'zh_CN', 'zh_TW')]
         [string]$Language = 'en_US',
 
         [Parameter(ParameterSetName = 'array')]
@@ -253,6 +255,7 @@ System.Collections.Hashtable. Converted into JSON format for easy export
     }
     process {
         if ($PSCmdlet.ShouldProcess("Creating ArrayList from individual Custom Compliance Settings", $PropertyName, $PropertyValue)) {
+            $snFormatPeriod = $false
             $ruleSet = [System.Collections.ArrayList]@()
             foreach ($rule in $QueryResult) {
                 if ($CustomQueryResult) {
@@ -262,6 +265,10 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                 else {
                     $k = $rule.$PropertyName
                     $v = $rule.$PropertyValue
+                }
+                if ($k -match '[a-zA-Z]*\.') {
+                    $k = $k.Replace('.', '_')
+                    $snFormatPeriod = $true
                 }
                 $t = ($v).GetType().Name
                 if ($DataType -eq 'String') {
@@ -287,7 +294,7 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                         { 'Version' }
                     }
                     if (-not($dt)) {
-                        Write-Output "DataType [$t] on setting $k identified is not currently supported. Please specify a supported DataType. See Docs for more info - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json"
+                        Write-Output "DataType [$t] on setting $k is not currently supported. Please specify a supported DataType. See Docs for more info - https://docs.microsoft.com/en-us/mem/intune/protect/compliance-custom-json"
                     }
                 }
                 else {
@@ -315,6 +322,9 @@ System.Collections.Hashtable. Converted into JSON format for easy export
                 catch {
                     { 'A detection rule was skipped and not added to ruleset because a null value was found in SettingName. Evaluate Key in Key/Value pair' }
                 }
+            }
+            if ($snFormatPeriod) {
+                Write-Output "One or more Rules were identified as having a period in the 'SettingName'. All periods have been replaced with an underscore in JSON output as it is not allowed. Please review and update your Discovery script accordingly." -Verbose
             }
             if (-not($Destination)) {
                 Write-Output "To export, use '-Destination' parameter" -Verbose
